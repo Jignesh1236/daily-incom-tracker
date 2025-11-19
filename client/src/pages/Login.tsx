@@ -26,19 +26,27 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-5xl grid md:grid-cols-2 gap-8 items-center">
+
+        {/* LEFT SECTION WITH LOGO */}
         <div className="hidden md:block">
           <div className="text-center space-y-6">
+
+            {/* Logo Added Here */}
             <div className="flex justify-center">
-              <div className="h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
-                <FileText className="h-10 w-10 text-primary" />
-              </div>
+              <img
+                src="https://github.com/Jignesh1236/daily-incom-tracker/blob/main/client/public/adsc-logo-alt.png?raw=true"
+                alt="ADSC Logo"
+                className="h-24 w-24 object-contain rounded-full shadow"
+              />
             </div>
+
             <h1 className="text-4xl font-bold text-gray-900">
               Aaishree Data Service Center
             </h1>
             <p className="text-xl text-gray-600">
               Daily Report Management System
             </p>
+
             <div className="space-y-3 text-left bg-white/50 backdrop-blur rounded-lg p-6">
               <div className="flex items-start gap-3">
                 <Shield className="h-5 w-5 text-primary mt-1" />
@@ -59,9 +67,11 @@ export default function Login() {
                 </div>
               </div>
             </div>
+
           </div>
         </div>
 
+        {/* LOGIN CARD */}
         <Card className="w-full">
           <CardHeader>
             <CardTitle className="text-2xl">Admin Login</CardTitle>
@@ -83,6 +93,7 @@ export default function Login() {
                   required
                 />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="login-password">Password</Label>
                 <Input
@@ -95,6 +106,7 @@ export default function Login() {
                   required
                 />
               </div>
+
               <Button
                 type="submit"
                 className="w-full"
@@ -105,6 +117,7 @@ export default function Login() {
             </form>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
