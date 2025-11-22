@@ -310,25 +310,38 @@ export function setupAuth(app: Express) {
 
 
   app.post("/api/login", loginLimiter, (req, res, next) => {
-    passport.authenticate("local", (err: any, user: any, info: any) => {
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
       if (err) {
         return next(err);
       }
       if (!user) {
         return res.status(401).json({ error: info?.message || "Invalid credentials" });
       }
-      req.logIn(user, (err) => {
+      req.logIn(user, async (err) => {
         if (err) {
           return next(err);
         }
+        // Log login activity
+        await logActivity(user.id, user.username, "login", {
+          ipAddress: req.ip,
+          userAgent: req.get("user-agent"),
+        });
         return res.status(200).json(user);
       });
     })(req, res, next);
   });
 
-  app.post("/api/logout", (req, res, next) => {
+  app.post("/api/logout", async (req, res, next) => {
+    const user = req.user;
     req.logout((err) => {
       if (err) return next(err);
+      // Log logout activity
+      if (user) {
+        logActivity((user as any).id, (user as any).username, "logout", {
+          ipAddress: req.ip,
+          userAgent: req.get("user-agent"),
+        }).catch((e) => console.error("Failed to log logout:", e));
+      }
       res.sendStatus(200);
     });
   });
