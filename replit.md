@@ -75,9 +75,13 @@ A fullstack TypeScript application for generating, saving, and managing daily bu
 
 ### Frontend Pages
 - `/` - Home page (report creation form)
+- `/about` - About This App page (comprehensive app information)
+- `/dashboard` - User dashboard (today's summary and quick stats)
 - `/history` - Report history (view all saved reports)
 - `/login` - Admin login/register page
 - `/admin` - Admin dashboard (protected route)
+- `/admin/users` - User management (admin only)
+- `/admin/activity` - Activity logs (admin/manager only)
 
 ### API Routes
 - `POST /api/login` - Admin login
@@ -99,7 +103,48 @@ A fullstack TypeScript application for generating, saving, and managing daily bu
 
 ## Recent Changes
 
-### November 22, 2025 - Performance & Accessibility Improvements (Latest)
+### November 22, 2025 - Backup & Restore Feature Fixed (Latest)
+- ✅ **Backend API Enhancement**
+  - Added new `/api/reports/bulk-restore` endpoint for bulk report restoration
+  - Admin-only protected endpoint with proper authentication
+  - Handles multiple reports in single request
+  - Validates each report before restoration
+  - Returns detailed success/error information
+  - Logs activity for audit trail
+- ✅ **Frontend Component Update**
+  - Updated BackupRestore component to use new bulk restore API
+  - Added loading state with "Restoring..." indicator
+  - Better error handling and user feedback
+  - Shows detailed restoration results (success count, error count)
+  - Properly restores both reports and templates
+  - Templates saved to localStorage
+  - Reports saved to MongoDB database
+- ✅ **User Experience**
+  - Clear progress indication during restore
+  - Detailed success/error messages
+  - Prevents multiple restore operations simultaneously
+  - Admin authentication requirement clearly communicated
+
+### November 22, 2025 - About This App Page Added
+- ✅ **New About Page Created**
+  - Created comprehensive "About This App" page at `/about` route
+  - Beautiful gradient design with modern UI components
+  - Detailed feature showcase with icons and descriptions
+  - Technology stack breakdown with badges
+  - Key capabilities organized in sections: User Management, Analytics, UX, Security
+  - Quick navigation links to Home and History pages
+  - Added "About" button to main navigation in Home page
+  - Responsive design with dark/light theme support
+- ✅ **Navigation Enhancement**
+  - Added Info icon and "About" link to header navigation
+  - Easy access to app information from any page
+- ✅ **Documentation**
+  - Complete feature listing with visual icons
+  - Technology stack visualization
+  - Security features highlighted
+  - User experience features showcased
+
+### November 22, 2025 - Performance & Accessibility Improvements
 - ✅ **Component Performance Optimization**
   - Wrapped ReportDisplay component with React.memo() for improved re-render performance
   - Wrapped FavoriteReports component with React.memo() to prevent unnecessary re-renders

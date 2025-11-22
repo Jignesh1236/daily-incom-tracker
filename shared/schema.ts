@@ -20,6 +20,7 @@ export const insertReportSchema = z.object({
   totalExpenses: z.string(),
   netProfit: z.string(),
   onlinePayment: z.string().optional().default("0"),
+  cashPayment: z.string().optional().default("0"),
   createdBy: z.string().optional(),
   createdByUsername: z.string().optional(),
 });

@@ -479,6 +479,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk Restore Reports (Admin only - PROTECTED)
+  app.post("/api/reports/bulk-restore", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const { reports } = req.body;
+      
+      if (!Array.isArray(reports)) {
+        return res.status(400).json({ error: "Reports must be an array" });
+      }
+
+      if (reports.length === 0) {
+        return res.status(400).json({ error: "No reports to restore" });
+      }
+
+      const createdReports = [];
+      const errors = [];
+
+      for (const reportData of reports) {
+        try {
+          const enrichedData = {
+            ...reportData,
+            createdBy: req.user?.id,
+            createdByUsername: req.user?.username,
+          };
+          
+          const validatedData = insertReportSchema.parse(enrichedData);
+          const report = await storage.createReport(validatedData);
+          createdReports.push(report);
+        } catch (error: any) {
+          errors.push({ date: reportData.date, error: error.message });
+        }
+      }
+
+      if (req.user) {
+        await logActivity(req.user.id, req.user.username, "report_created", {
+          resourceType: "bulk_restore",
+          metadata: { 
+            totalReports: reports.length,
+            successCount: createdReports.length,
+            errorCount: errors.length
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+      }
+
+      res.json({
+        success: true,
+        restored: createdReports.length,
+        total: reports.length,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
