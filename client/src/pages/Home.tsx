@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Printer, Calendar, Save, History, LogIn, Shield, CreditCard, Calculator } from "lucide-react";
+import { Printer, Calendar, Save, History, LogIn, Shield, CreditCard, Calculator, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
@@ -33,6 +33,7 @@ export default function Home() {
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
   const [onlinePayment, setOnlinePayment] = useState<string>('0');
+  const [cashPayment, setCashPayment] = useState<string>('0');
   const [showReport, setShowReport] = useState(false);
   const [showOperatorDialog, setShowOperatorDialog] = useState(false);
   const [operatorName, setOperatorName] = useState('');
@@ -94,8 +95,9 @@ export default function Home() {
     const totalServices = services.reduce((sum, s) => sum + s.amount, 0);
     const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
     const onlinePaymentAmount = parseFloat(onlinePayment) || 0;
+    const cashPaymentAmount = parseFloat(cashPayment) || 0;
     const netProfit = totalServices - totalExpenses;
-    return { totalServices, totalExpenses, netProfit, onlinePayment: onlinePaymentAmount, cashPayment: 0 };
+    return { totalServices, totalExpenses, netProfit, onlinePayment: onlinePaymentAmount, cashPayment: cashPaymentAmount };
   };
 
   const report: DailyReport = {
@@ -210,6 +212,7 @@ export default function Home() {
       totalExpenses: summary.totalExpenses.toString(),
       netProfit: summary.netProfit.toString(),
       onlinePayment: onlinePayment,
+      cashPayment: cashPayment,
     };
     saveReportMutation.mutate(reportData);
   };
@@ -218,6 +221,7 @@ export default function Home() {
     setServices(report.services as ServiceItem[]);
     setExpenses(report.expenses as ExpenseItem[]);
     setOnlinePayment(report.onlinePayment || '0');
+    setCashPayment((report as any).cashPayment || '0');
     setShowReport(true);
     toast({
       title: "Report Loaded",
@@ -248,6 +252,12 @@ export default function Home() {
             </div>
             <div className="flex gap-3">
               <ThemeToggle />
+              <Link href="/about">
+                <Button variant="outline" className="gap-2">
+                  <Info className="h-4 w-4" />
+                  About
+                </Button>
+              </Link>
               <Link href="/dashboard">
                 <Button variant="outline" className="gap-2">
                   <History className="h-4 w-4" />
@@ -350,30 +360,56 @@ export default function Home() {
                 <div className="h-10 w-10 rounded-lg bg-green-500/10 flex items-center justify-center">
                   <CreditCard className="h-5 w-5 text-green-600" />
                 </div>
-                <h2 className="text-xl font-semibold text-foreground">Online Payment</h2>
+                <h2 className="text-xl font-semibold text-foreground">Payment Details</h2>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="online-payment" className="text-sm font-medium">
-                  Online Payment Amount (₹)
-                </Label>
-                <Input
-                  id="online-payment"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={onlinePayment}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    const numValue = parseFloat(value);
-                    if (value === '' || !isNaN(numValue) && numValue >= 0) {
-                      setOnlinePayment(value);
-                    }
-                  }}
-                  placeholder="0.00"
-                  className="h-11"
-                  data-testid="input-online-payment"
-                  aria-label="Online payment amount in Indian Rupees"
-                />
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="online-payment" className="text-sm font-medium">
+                    Online Payment Amount (₹)
+                  </Label>
+                  <Input
+                    id="online-payment"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={onlinePayment}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = parseFloat(value);
+                      if (value === '' || !isNaN(numValue) && numValue >= 0) {
+                        setOnlinePayment(value);
+                      }
+                    }}
+                    placeholder="0.00"
+                    className="h-11"
+                    data-testid="input-online-payment"
+                    aria-label="Online payment amount"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="cash-payment" className="text-sm font-medium">
+                    Cash Payment Amount (₹)
+                  </Label>
+                  <Input
+                    id="cash-payment"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={cashPayment}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = parseFloat(value);
+                      if (value === '' || !isNaN(numValue) && numValue >= 0) {
+                        setCashPayment(value);
+                      }
+                    }}
+                    placeholder="0.00"
+                    className="h-11"
+                    data-testid="input-cash-payment"
+                    aria-label="Cash payment amount"
+                  />
+                </div>
               </div>
             </Card>
 

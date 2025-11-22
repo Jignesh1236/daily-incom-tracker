@@ -29,18 +29,18 @@ const MemoizedReportDisplay = ({ report, summary }: ReportDisplayProps) => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-background print:bg-white p-6 print:p-1 print-report-container">
+    <div className="max-w-4xl mx-auto bg-background print:bg-white p-6 print:p-0 print-report-container">
       <ReportHeader date={report.date} />
 
-      <div className="space-y-6 print:space-y-1">
+      <div className="space-y-6 print:space-y-0.5">
         <div className="hidden print:block">
           <table className={`w-full border-2 border-gray-800 ${getTableSizeClass()}`}>
             <thead>
               <tr>
-                <th className="text-left px-2 py-1 font-bold border-r-2 border-gray-800 print:text-xs">Service Name</th>
-                <th className="text-right px-2 py-1 font-bold border-r-2 border-gray-800 w-24 print:text-xs">Amount</th>
-                <th className="text-left px-2 py-1 font-bold border-r-2 border-gray-800 print:text-xs">Expense Name</th>
-                <th className="text-right px-2 py-1 font-bold w-24 print:text-xs">Amount</th>
+                <th className="text-left px-1 py-0.5 font-bold border-r-2 border-gray-800 print:text-[10px]">Service Name</th>
+                <th className="text-right px-1 py-0.5 font-bold border-r-2 border-gray-800 w-20 print:text-[10px]">Amount</th>
+                <th className="text-left px-1 py-0.5 font-bold border-r-2 border-gray-800 print:text-[10px]">Expense Name</th>
+                <th className="text-right px-1 py-0.5 font-bold w-20 print:text-[10px]">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -49,26 +49,26 @@ const MemoizedReportDisplay = ({ report, summary }: ReportDisplayProps) => {
                 const expense = report.expenses[index];
                 return (
                   <tr key={index}>
-                    <td className="px-2 py-0.5 border-r print:text-xs">{service?.name || ''}</td>
-                    <td className="px-2 py-0.5 text-right border-r font-medium print:text-xs">{service ? formatCurrency(service.amount) : ''}</td>
-                    <td className="px-2 py-0.5 border-r print:text-xs">{expense?.name || ''}</td>
-                    <td className="px-2 py-0.5 text-right font-medium print:text-xs">{expense ? formatCurrency(expense.amount) : ''}</td>
+                    <td className="px-1 py-0 border-r print:text-[9px]">{service?.name || ''}</td>
+                    <td className="px-1 py-0 text-right border-r font-medium print:text-[9px]">{service ? formatCurrency(service.amount) : ''}</td>
+                    <td className="px-1 py-0 border-r print:text-[9px]">{expense?.name || ''}</td>
+                    <td className="px-1 py-0 text-right font-medium print:text-[9px]">{expense ? formatCurrency(expense.amount) : ''}</td>
                   </tr>
                 );
               })}
               <tr className="bg-gray-300 font-bold">
-                <td className="px-2 py-1 font-bold uppercase tracking-wide print:text-xs">Total Srvc</td>
-                <td className="px-2 py-1 text-right font-bold print:text-xs">{formatCurrency(summary.totalServices)}</td>
-                <td className="px-2 py-1 font-bold uppercase tracking-wide print:text-xs">Total Exp</td>
-                <td className="px-2 py-1 text-right font-bold print:text-xs">{formatCurrency(summary.totalExpenses)}</td>
+                <td className="px-1 py-0.5 font-bold uppercase print:text-[10px]">Total Srvc</td>
+                <td className="px-1 py-0.5 text-right font-bold print:text-[10px]">{formatCurrency(summary.totalServices)}</td>
+                <td className="px-1 py-0.5 font-bold uppercase print:text-[10px]">Total Exp</td>
+                <td className="px-1 py-0.5 text-right font-bold print:text-[10px]">{formatCurrency(summary.totalExpenses)}</td>
               </tr>
             </tbody>
           </table>
 
-          <div className="mt-2 p-2 bg-gray-200 border-2 border-gray-800 rounded-lg print:mt-1 print:p-1.5">
+          <div className="mt-1 p-1 bg-gray-200 border-2 border-gray-800 print:mt-0.5 print:p-1">
             <div className="flex justify-between items-center">
-              <span className="text-base font-bold uppercase tracking-wide print:text-sm">Net Profit:</span>
-              <span className={`text-xl font-bold print:text-lg ${summary.netProfit >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+              <span className="text-sm font-bold uppercase print:text-[11px]">Net Profit:</span>
+              <span className={`text-base font-bold print:text-[11px] ${summary.netProfit >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                 {formatCurrency(summary.netProfit)}
               </span>
             </div>
@@ -161,25 +161,29 @@ const MemoizedReportDisplay = ({ report, summary }: ReportDisplayProps) => {
           </div>
         </div>
 
-        <Card className="p-4 border-2 print:shadow-none summary-box">
-          <h2 className="text-xl font-bold mb-4 text-foreground print:text-black uppercase tracking-wide">Summary</h2>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center pb-2 border-b print:text-black print:border-gray-300 print:pb-1">
-              <span className="font-medium print:text-sm">Total Services Revenue</span>
-              <span className="font-semibold print:text-sm">{formatCurrency(summary.totalServices)}</span>
+        <Card className="p-3 border-2 print:shadow-none print:p-1.5 summary-box">
+          <h2 className="text-lg font-bold mb-2 text-foreground print:text-black uppercase print:text-xs">Summary</h2>
+          <div className="space-y-1.5 print:space-y-1">
+            <div className="flex justify-between items-center pb-1 border-b print:text-black print:border-gray-300 print:pb-0.5">
+              <span className="font-medium print:text-[10px]">Total Services Revenue</span>
+              <span className="font-semibold print:text-[10px]">{formatCurrency(summary.totalServices)}</span>
             </div>
-            <div className="flex justify-between items-center pb-2 border-b print:text-black print:border-gray-300 print:pb-1">
-              <span className="font-medium print:text-sm">Online Payment</span>
-              <span className="font-semibold print:text-sm text-green-600 print:text-green-700">{formatCurrency(summary.onlinePayment)}</span>
+            <div className="flex justify-between items-center pb-1 border-b print:text-black print:border-gray-300 print:pb-0.5">
+              <span className="font-medium print:text-[10px]">Online Payment</span>
+              <span className="font-semibold print:text-[10px] text-green-600 print:text-green-700">{formatCurrency(summary.onlinePayment)}</span>
             </div>
-            <div className="flex justify-between items-center pb-2 border-b print:text-black print:border-gray-300 print:pb-1">
-              <span className="font-medium print:text-sm">Total Expenses</span>
-              <span className="font-semibold print:text-sm">{formatCurrency(summary.totalExpenses)}</span>
+            <div className="flex justify-between items-center pb-1 border-b print:text-black print:border-gray-300 print:pb-0.5">
+              <span className="font-medium print:text-[10px]">Cash Payment</span>
+              <span className="font-semibold print:text-[10px] text-blue-600 print:text-blue-700">{formatCurrency(summary.cashPayment)}</span>
             </div>
-            <div className="flex justify-between items-center pt-2 print:pt-2 print:border-t print:border-gray-400">
-              <span className="text-xl font-bold print:text-black print:text-base">Net Profit</span>
+            <div className="flex justify-between items-center pb-1 border-b print:text-black print:border-gray-300 print:pb-0.5">
+              <span className="font-medium print:text-[10px]">Total Expenses</span>
+              <span className="font-semibold print:text-[10px]">{formatCurrency(summary.totalExpenses)}</span>
+            </div>
+            <div className="flex justify-between items-center pt-1 print:pt-0.5 print:border-t print:border-gray-400">
+              <span className="text-base font-bold print:text-black print:text-[11px]">Net Profit</span>
               <span
-                className={`text-xl font-bold print:text-base ${summary.netProfit >= 0 ? 'text-green-600 print:text-green-700' : 'text-destructive print:text-red-700'}`}
+                className={`text-base font-bold print:text-[11px] ${summary.netProfit >= 0 ? 'text-green-600 print:text-green-700' : 'text-destructive print:text-red-700'}`}
                 data-testid="text-net-profit"
               >
                 {formatCurrency(summary.netProfit)}
@@ -188,33 +192,31 @@ const MemoizedReportDisplay = ({ report, summary }: ReportDisplayProps) => {
           </div>
         </Card>
 
-        <div className="mt-4 print:mt-2 pt-4 print:pt-2 border-t-2 border-gray-300 print:border-gray-800">
-          <div className="space-y-2 print:space-y-0">
+        <div className="mt-2 print:mt-1 pt-2 print:pt-1 border-t-2 border-gray-300 print:border-gray-800">
+          <div className="space-y-1 print:space-y-0">
             <div className="flex justify-between gap-2 print:gap-1">
               {/* Operator Signature */}
               <div className="flex-1 text-center">
-                <div className="print:h-10 h-12"></div>
-                <div className="border-t-2 border-gray-800 print:border-t-2"></div>
-                <p className="text-xs font-semibold text-foreground print:text-black print:text-xs mt-0.5 print:mt-0.5">Operator Sign</p>
-                <p className="text-xs text-muted-foreground print:text-gray-700 mt-0 print:mt-0 operator-signature-name">&nbsp;</p>
-                <p className="text-xs text-muted-foreground print:text-gray-600 mt-0 print:mt-0 print:text-xs">Name/Date</p>
+                <div className="print:h-6 h-8"></div>
+                <div className="border-t-2 border-gray-800 print:border-t-1"></div>
+                <p className="text-xs font-semibold text-foreground print:text-black print:text-[8px] mt-0.5 print:mt-0">Operator</p>
+                <p className="text-xs text-muted-foreground print:text-gray-700 mt-0 print:mt-0 operator-signature-name print:text-[8px]">&nbsp;</p>
               </div>
 
               {/* Authorized Signature */}
               <div className="flex-1 text-center">
-                <div className="print:h-10 h-12"></div>
-                <div className="border-t-2 border-gray-800 print:border-t-2"></div>
-                <p className="text-xs font-semibold text-foreground print:text-black print:text-xs mt-0.5 print:mt-0.5">Auth Sign (ADSC)</p>
-                <p className="text-xs text-muted-foreground print:text-gray-700 mt-0 print:mt-0">&nbsp;</p>
-                <p className="text-xs text-muted-foreground print:text-gray-600 mt-0 print:mt-0 print:text-xs">Name/Date</p>
+                <div className="print:h-6 h-8"></div>
+                <div className="border-t-2 border-gray-800 print:border-t-1"></div>
+                <p className="text-xs font-semibold text-foreground print:text-black print:text-[8px] mt-0.5 print:mt-0">Auth (ADSC)</p>
+                <p className="text-xs text-muted-foreground print:text-gray-700 mt-0 print:mt-0 print:text-[8px]">&nbsp;</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="hidden print:block print-footer mt-1 print:mt-1 pt-1 print:pt-0.5 border-t border-gray-400 text-center">
-          <p className="text-xs print:text-xs text-gray-600 print:text-gray-700">{new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</p>
-          <p className="text-xs text-gray-600 mt-0 print:mt-0 print:text-xs">Aaishree Data Service Center</p>
+        <div className="hidden print:block print-footer mt-0.5 print:mt-0.5 pt-0.5 print:pt-0.5 border-t border-gray-400 text-center">
+          <p className="text-xs print:text-[8px] text-gray-600 print:text-gray-700">{new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</p>
+          <p className="text-xs text-gray-600 mt-0 print:mt-0 print:text-[8px]">ADSC</p>
         </div>
       </div>
     </div>

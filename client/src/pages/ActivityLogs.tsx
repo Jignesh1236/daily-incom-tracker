@@ -134,53 +134,75 @@ export default function ActivityLogs() {
         <div className="grid gap-6">
           <Card>
             <CardHeader>
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    Recent Activity
-                  </CardTitle>
-                  <CardDescription>Showing {filteredLogs.length} of {logs.length} activities</CardDescription>
-                </div>
-                <div className="flex gap-2">
+              <div>
+                <CardTitle className="flex items-center gap-2 mb-4">
+                  <Activity className="h-5 w-5" />
+                  Recent Activity
+                </CardTitle>
+                <CardDescription className="mb-4">Showing {filteredLogs.length} of {logs.length} activities</CardDescription>
+                
+                <div className="flex flex-wrap gap-3 items-end">
                   {user.role === "admin" && (
-                    <Select value={filterUser} onValueChange={setFilterUser}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Filter by user" />
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-medium">Filter by User</label>
+                      <Select value={filterUser} onValueChange={setFilterUser}>
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder="All Users" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Users</SelectItem>
+                          {users.map((u) => (
+                            <SelectItem key={u._id} value={u._id}>
+                              <div className="flex items-center gap-2">
+                                <User className="h-3 w-3" />
+                                {u.username} {u.role && `(${u.role})`}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  
+                  <div className="flex flex-col gap-1">
+                    <label className="text-sm font-medium">Filter by Action</label>
+                    <Select value={filterAction} onValueChange={setFilterAction}>
+                      <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="All Actions" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Users</SelectItem>
-                        {users.map((u) => (
-                          <SelectItem key={u._id} value={u._id}>
-                            {u.username}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="all">All Actions</SelectItem>
+                        <SelectItem value="login">Login</SelectItem>
+                        <SelectItem value="logout">Logout</SelectItem>
+                        <SelectItem value="report_created">Report Created</SelectItem>
+                        <SelectItem value="report_updated">Report Updated</SelectItem>
+                        <SelectItem value="report_deleted">Report Deleted</SelectItem>
+                        <SelectItem value="report_viewed">Report Viewed</SelectItem>
+                        <SelectItem value="report_exported">Report Exported</SelectItem>
+                        <SelectItem value="report_shared">Report Shared</SelectItem>
+                        {user.role === "admin" && (
+                          <>
+                            <SelectItem value="user_created">User Created</SelectItem>
+                            <SelectItem value="user_updated">User Updated</SelectItem>
+                            <SelectItem value="user_deleted">User Deleted</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  {(filterUser !== "all" || filterAction !== "all") && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setFilterUser("all");
+                        setFilterAction("all");
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
                   )}
-                  <Select value={filterAction} onValueChange={setFilterAction}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Filter by action" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Actions</SelectItem>
-                      <SelectItem value="login">Login</SelectItem>
-                      <SelectItem value="logout">Logout</SelectItem>
-                      <SelectItem value="report_created">Report Created</SelectItem>
-                      <SelectItem value="report_updated">Report Updated</SelectItem>
-                      <SelectItem value="report_deleted">Report Deleted</SelectItem>
-                      <SelectItem value="report_viewed">Report Viewed</SelectItem>
-                      <SelectItem value="report_exported">Report Exported</SelectItem>
-                      <SelectItem value="report_shared">Report Shared</SelectItem>
-                      {user.role === "admin" && (
-                        <>
-                          <SelectItem value="user_created">User Created</SelectItem>
-                          <SelectItem value="user_updated">User Updated</SelectItem>
-                          <SelectItem value="user_deleted">User Deleted</SelectItem>
-                        </>
-                      )}
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
             </CardHeader>

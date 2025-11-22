@@ -13,6 +13,7 @@ import Admin from "@/pages/Admin";
 import UserManagement from "@/pages/UserManagement";
 import ActivityLogs from "@/pages/ActivityLogs";
 import UserDashboard from "@/pages/UserDashboard";
+import About from "@/pages/About";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/dashboard" component={UserDashboard} />
       <Route path="/history" component={History} />
+      <Route path="/about" component={About} />
       <Route path="/login" component={Login} />
       <ProtectedRoute path="/admin" component={Admin} />
       <ProtectedRoute path="/admin/users" component={UserManagement} />

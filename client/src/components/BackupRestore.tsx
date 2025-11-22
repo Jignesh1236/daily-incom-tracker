@@ -2,15 +2,41 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Upload, Database } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import type { Report } from "@shared/schema";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function BackupRestore() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isRestoring, setIsRestoring] = useState(false);
   
   const { data: reports = [] } = useQuery<Report[]>({
     queryKey: ['/api/reports'],
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async (reports: any[]) => {
+      const res = await apiRequest('POST', '/api/reports/bulk-restore', { reports });
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/reports'] });
+      toast({
+        title: "Restore Complete",
+        description: `Successfully restored ${data.restored} of ${data.total} reports.${data.errors ? ` ${data.errors.length} failed.` : ''}`,
+      });
+      setIsRestoring(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Restore Failed",
+        description: error.message || "Failed to restore reports. Make sure you're logged in as admin.",
+        variant: "destructive",
+      });
+      setIsRestoring(false);
+    },
   });
 
   const handleBackup = () => {
@@ -56,6 +82,7 @@ export default function BackupRestore() {
       if (!file) return;
 
       try {
+        setIsRestoring(true);
         const text = await file.text();
         const backupData = JSON.parse(text);
 
@@ -68,17 +95,18 @@ export default function BackupRestore() {
         }
 
         toast({
-          title: "Restore Initiated",
-          description: `Found ${backupData.reports.length} reports in backup. Note: Report restoration requires admin access.`,
+          title: "Restoring...",
+          description: `Processing ${backupData.reports.length} reports. Please wait...`,
         });
 
-        queryClient.invalidateQueries({ queryKey: ['/api/reports'] });
+        restoreMutation.mutate(backupData.reports);
       } catch (error) {
         toast({
           title: "Restore Failed",
           description: "Invalid backup file or corrupted data.",
           variant: "destructive",
         });
+        setIsRestoring(false);
       }
     };
 
@@ -111,9 +139,10 @@ export default function BackupRestore() {
           onClick={handleRestore} 
           variant="outline" 
           className="w-full gap-2"
+          disabled={isRestoring}
         >
           <Upload className="h-4 w-4" />
-          Restore from Backup
+          {isRestoring ? 'Restoring...' : 'Restore from Backup'}
         </Button>
         <p className="text-xs text-muted-foreground mt-2">
           Backup includes all reports and templates. Keep backups safe!

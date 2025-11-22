@@ -51,6 +51,7 @@ export default function Admin() {
   const [editServices, setEditServices] = useState<any[]>([]);
   const [editExpenses, setEditExpenses] = useState<any[]>([]);
   const [editOnlinePayment, setEditOnlinePayment] = useState("0");
+  const [editCashPayment, setEditCashPayment] = useState("0");
 
   // Change password states
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -225,14 +226,16 @@ export default function Admin() {
   };
 
   const exportToCSV = () => {
-    const headers = ['Date', 'Total Services', 'Total Expenses', 'Net Profit', 'Services', 'Expenses'];
+    const headers = ['Date', 'Total Services (₹)', 'Total Expenses (₹)', 'Net Profit (₹)', 'Service Count', 'Expense Count', 'Online Payment (₹)', 'Cash Payment (₹)'];
     const rows = reports.map(report => [
       new Date(report.date).toLocaleDateString('en-IN'),
-      report.totalServices,
-      report.totalExpenses,
-      report.netProfit,
-      report.services.map(s => `${s.name}: ${s.amount}`).join('; '),
-      report.expenses.map(e => `${e.name}: ${e.amount}`).join('; ')
+      parseFloat(report.totalServices as string).toFixed(2),
+      parseFloat(report.totalExpenses as string).toFixed(2),
+      parseFloat(report.netProfit as string).toFixed(2),
+      report.services.length,
+      report.expenses.length,
+      (report.onlinePayment || '0'),
+      ((report as any).cashPayment || '0')
     ]);
 
     const csvContent = [
@@ -240,43 +243,102 @@ export default function Admin() {
       ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `adsc-reports-${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
+
+    toast({
+      title: "CSV Exported",
+      description: `Successfully exported ${reports.length} reports to CSV.`,
+    });
   };
 
   const exportToJSON = () => {
-    const jsonContent = JSON.stringify(reports, null, 2);
+    const exportData = {
+      metadata: {
+        exportedOn: new Date().toISOString(),
+        totalReports: reports.length,
+        appName: "Aaishree Data Service Center",
+        version: "1.0"
+      },
+      summary: {
+        totalRevenue: analytics.totalRevenue.toFixed(2),
+        totalExpenses: analytics.totalExpenses.toFixed(2),
+        totalProfit: analytics.totalProfit.toFixed(2),
+        averageProfit: analytics.averageProfit.toFixed(2)
+      },
+      filters: {
+        dateFrom: dateFrom || 'All',
+        dateTo: dateTo || 'All',
+        profitFilter: profitFilter,
+        searchQuery: searchQuery || 'None'
+      },
+      reports: reports.map(r => ({
+        date: new Date(r.date).toLocaleDateString('en-IN'),
+        totalServices: parseFloat(r.totalServices as string).toFixed(2),
+        totalExpenses: parseFloat(r.totalExpenses as string).toFixed(2),
+        netProfit: parseFloat(r.netProfit as string).toFixed(2),
+        serviceCount: r.services.length,
+        expenseCount: r.expenses.length,
+        onlinePayment: r.onlinePayment || '0',
+        cashPayment: (r as any).cashPayment || '0',
+        services: r.services.map(s => ({ name: s.name, amount: s.amount })),
+        expenses: r.expenses.map(e => ({ name: e.name, amount: e.amount }))
+      }))
+    };
+
+    const jsonContent = JSON.stringify(exportData, null, 2);
     const blob = new Blob([jsonContent], { type: 'application/json' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `adsc-reports-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
+
+    toast({
+      title: "JSON Exported",
+      description: `Successfully exported ${reports.length} reports to JSON.`,
+    });
   };
 
   const exportSummaryReport = () => {
+    const profitReports = reports.filter(r => parseFloat(r.netProfit) > 0);
+    const lossReports = reports.filter(r => parseFloat(r.netProfit) < 0);
+    
     const summary = {
-      generatedOn: new Date().toISOString(),
+      metadata: {
+        generatedOn: new Date().toLocaleString('en-IN'),
+        appName: "Aaishree Data Service Center",
+        reportType: "Financial Summary"
+      },
       filters: {
-        dateFrom: dateFrom || 'All',
-        dateTo: dateTo || 'All',
-        profitFilter,
+        dateFrom: dateFrom || 'All Dates',
+        dateTo: dateTo || 'All Dates',
+        profitFilter: profitFilter,
         searchQuery: searchQuery || 'None'
       },
-      totalReports: analytics.totalReports,
-      totalRevenue: analytics.totalRevenue,
-      totalExpenses: analytics.totalExpenses,
-      totalProfit: analytics.totalProfit,
-      averageProfit: analytics.averageProfit,
+      overview: {
+        totalReports: analytics.totalReports,
+        profitableReports: profitReports.length,
+        lossReports: lossReports.length,
+      },
+      financials: {
+        totalRevenue: analytics.totalRevenue.toFixed(2),
+        totalExpenses: analytics.totalExpenses.toFixed(2),
+        totalProfit: analytics.totalProfit.toFixed(2),
+        averageProfit: analytics.averageProfit.toFixed(2),
+        minProfit: Math.min(...reports.map(r => parseFloat(r.netProfit))).toFixed(2),
+        maxProfit: Math.max(...reports.map(r => parseFloat(r.netProfit))).toFixed(2),
+      },
       reports: reports.map(r => ({
-        date: r.date,
-        totalServices: r.totalServices,
-        totalExpenses: r.totalExpenses,
-        netProfit: r.netProfit,
+        date: new Date(r.date).toLocaleDateString('en-IN'),
+        revenue: parseFloat(r.totalServices as string).toFixed(2),
+        expenses: parseFloat(r.totalExpenses as string).toFixed(2),
+        profit: parseFloat(r.netProfit as string).toFixed(2),
+        status: parseFloat(r.netProfit) >= 0 ? 'Profit' : 'Loss'
       }))
     };
 
@@ -287,35 +349,110 @@ export default function Admin() {
     a.href = url;
     a.download = `adsc-summary-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
+
+    toast({
+      title: "Summary Report Exported",
+      description: `Successfully exported summary of ${reports.length} reports.`,
+    });
   };
 
   const exportToPDF = () => {
     const doc = new jsPDF();
-    
-    doc.setFontSize(18);
-    doc.text('ADSC Daily Reports', 14, 22);
-    doc.setFontSize(11);
-    doc.setTextColor(100);
-    doc.text(`Generated: ${new Date().toLocaleDateString('en-IN')}`, 14, 30);
-    doc.text(`Total Reports: ${reports.length}`, 14, 36);
-    doc.text(`Total Revenue: ${formatCurrency(analytics.totalRevenue)}`, 14, 42);
-    doc.text(`Total Expenses: ${formatCurrency(analytics.totalExpenses)}`, 14, 48);
-    doc.text(`Total Profit: ${formatCurrency(analytics.totalProfit)}`, 14, 54);
+    let yPosition = 15;
 
+    // Header
+    doc.setFillColor(79, 70, 229);
+    doc.rect(0, 0, 210, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.text('Aaishree Data Service Center', 14, 12);
+    doc.setFontSize(10);
+    doc.text('Daily Financial Report', 14, 20);
+
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
+    yPosition = 38;
+
+    // Report metadata
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Report Generated:', 14, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.text(new Date().toLocaleString('en-IN'), 50, yPosition);
+    yPosition += 6;
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Total Reports:', 14, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.text(reports.length.toString(), 50, yPosition);
+    yPosition += 10;
+
+    // Financial Summary
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text('Financial Summary', 14, yPosition);
+    yPosition += 7;
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    
+    const summaryData = [
+      ['Total Revenue:', formatCurrency(analytics.totalRevenue)],
+      ['Total Expenses:', formatCurrency(analytics.totalExpenses)],
+      ['Total Profit:', formatCurrency(analytics.totalProfit)],
+      ['Average Profit:', formatCurrency(analytics.averageProfit)],
+    ];
+
+    summaryData.forEach(([label, value]) => {
+      doc.setFont('helvetica', 'bold');
+      doc.text(label, 14, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.text(value, 70, yPosition);
+      yPosition += 6;
+    });
+
+    yPosition += 5;
+
+    // Detailed Table
     const tableData = reports.map(report => [
       new Date(report.date).toLocaleDateString('en-IN'),
       formatCurrency(parseFloat(report.totalServices as string)),
       formatCurrency(parseFloat(report.totalExpenses as string)),
       formatCurrency(parseFloat(report.netProfit as string)),
+      report.services.length.toString(),
+      report.expenses.length.toString(),
     ]);
 
     autoTable(doc, {
-      startY: 62,
-      head: [['Date', 'Services', 'Expenses', 'Profit']],
+      startY: yPosition,
+      head: [['Date', 'Revenue', 'Expenses', 'Profit', 'Services', 'Expenses']],
       body: tableData,
       theme: 'striped',
-      headStyles: { fillColor: [79, 70, 229] },
-      margin: { top: 62 },
+      headStyles: { 
+        fillColor: [79, 70, 229],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 10
+      },
+      bodyStyles: {
+        fontSize: 9
+      },
+      alternateRowStyles: {
+        fillColor: [240, 240, 250]
+      },
+      margin: { top: yPosition, left: 14, right: 14 },
+      didDrawPage: (data) => {
+        // Footer
+        const pageSize = doc.internal.pageSize;
+        const pageHeight = pageSize.getHeight();
+        const pageWidth = pageSize.getWidth();
+        const footerY = pageHeight - 10;
+        
+        doc.setFontSize(8);
+        doc.setTextColor(150);
+        doc.text(`Generated on ${new Date().toLocaleDateString('en-IN')} | Page ${data.pageNumber}`, 14, footerY);
+        doc.text('www.aaishree.com', pageWidth - 40, footerY);
+      }
     });
 
     doc.save(`adsc-reports-${new Date().toISOString().split('T')[0]}.pdf`);
@@ -394,6 +531,7 @@ export default function Admin() {
     setEditServices(report.services as any[]);
     setEditExpenses(report.expenses as any[]);
     setEditOnlinePayment(report.onlinePayment || '0');
+    setEditCashPayment((report as any).cashPayment || '0');
   };
 
   const handlePrintMonthlySummary = () => {
@@ -465,6 +603,7 @@ export default function Admin() {
       totalExpenses: totalExpenses.toString(),
       netProfit: netProfit.toString(),
       onlinePayment: editOnlinePayment,
+      cashPayment: editCashPayment,
     };
 
     updateReportMutation.mutate({ id: editingReport.id, report: updatedReport });
@@ -1205,15 +1344,27 @@ export default function Admin() {
                 ))}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="edit-online-payment">Online Payment</Label>
-                <Input
-                  id="edit-online-payment"
-                  type="number"
-                  value={editOnlinePayment}
-                  onChange={(e) => setEditOnlinePayment(e.target.value)}
-                  placeholder="0"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-online-payment">Online Payment</Label>
+                  <Input
+                    id="edit-online-payment"
+                    type="number"
+                    value={editOnlinePayment}
+                    onChange={(e) => setEditOnlinePayment(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-cash-payment">Cash Payment</Label>
+                  <Input
+                    id="edit-cash-payment"
+                    type="number"
+                    value={editCashPayment}
+                    onChange={(e) => setEditCashPayment(e.target.value)}
+                    placeholder="0"
+                  />
+                </div>
               </div>
 
               <div className="pt-4 flex gap-2 justify-end border-t">
