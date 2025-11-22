@@ -24,6 +24,13 @@ export default function ExpenseEntryForm({ expenses, onExpensesChange }: Expense
   };
 
   const updateExpense = (id: string, field: keyof ExpenseItem, value: string | number) => {
+    // Validate amount is non-negative
+    if (field === 'amount' && typeof value === 'string') {
+      const numValue = parseFloat(value);
+      if (value !== '' && (isNaN(numValue) || numValue < 0)) {
+        return; // Ignore invalid values
+      }
+    }
     onExpensesChange(
       expenses.map(e => e.id === id ? { ...e, [field]: value } : e)
     );
@@ -73,6 +80,7 @@ export default function ExpenseEntryForm({ expenses, onExpensesChange }: Expense
                     onChange={(e) => updateExpense(expense.id, 'name', e.target.value)}
                     className="h-10"
                     data-testid={`input-expense-name-${index}`}
+                    aria-label="Expense name"
                   />
                 </div>
                 <div className="space-y-2">
@@ -86,9 +94,16 @@ export default function ExpenseEntryForm({ expenses, onExpensesChange }: Expense
                     step="0.01"
                     placeholder="0.00"
                     value={expense.amount || ''}
-                    onChange={(e) => updateExpense(expense.id, 'amount', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = parseFloat(value);
+                      if (value === '' || (!isNaN(numValue) && numValue >= 0)) {
+                        updateExpense(expense.id, 'amount', value === '' ? 0 : numValue);
+                      }
+                    }}
                     className="h-10"
                     data-testid={`input-expense-amount-${index}`}
+                    aria-label={`Amount for ${expense.name || 'expense'} in Indian Rupees`}
                   />
                 </div>
               </div>

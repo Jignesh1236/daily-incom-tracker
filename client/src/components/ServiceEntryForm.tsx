@@ -65,6 +65,13 @@ export default function ServiceEntryForm({ services, onServicesChange }: Service
   };
 
   const updateService = (id: string, field: keyof ServiceItem, value: string | number) => {
+    // Validate amount is non-negative
+    if (field === 'amount' && typeof value === 'string') {
+      const numValue = parseFloat(value);
+      if (value !== '' && (isNaN(numValue) || numValue < 0)) {
+        return; // Ignore invalid values
+      }
+    }
     onServicesChange(
       services.map((s: ServiceItem) => s.id === id ? { ...s, [field]: value } : s)
     );
@@ -128,6 +135,7 @@ export default function ServiceEntryForm({ services, onServicesChange }: Service
                     onChange={(e) => updateService(service.id, 'name', e.target.value)}
                     className="h-10"
                     data-testid={`input-service-name-${index}`}
+                    aria-label="Service name"
                   />
                 </div>
                 <div className="space-y-2">
@@ -141,9 +149,16 @@ export default function ServiceEntryForm({ services, onServicesChange }: Service
                     step="0.01"
                     placeholder="0.00"
                     value={service.amount || ''}
-                    onChange={(e) => updateService(service.id, 'amount', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const numValue = parseFloat(value);
+                      if (value === '' || (!isNaN(numValue) && numValue >= 0)) {
+                        updateService(service.id, 'amount', value === '' ? 0 : numValue);
+                      }
+                    }}
                     className="h-10"
                     data-testid={`input-service-amount-${index}`}
+                    aria-label={`Amount for ${service.name || 'service'} in Indian Rupees`}
                   />
                 </div>
               </div>

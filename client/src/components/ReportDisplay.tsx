@@ -1,3 +1,4 @@
+import React from "react";
 import { Card } from "@/components/ui/card";
 import type { DailyReport, ReportSummary } from "@shared/schema";
 import ReportHeader from "./ReportHeader";
@@ -7,7 +8,7 @@ interface ReportDisplayProps {
   summary: ReportSummary;
 }
 
-export default function ReportDisplay({ report, summary }: ReportDisplayProps) {
+const MemoizedReportDisplay = ({ report, summary }: ReportDisplayProps) => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -28,18 +29,18 @@ export default function ReportDisplay({ report, summary }: ReportDisplayProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-background print:bg-white p-6 print:p-0 print-report-container">
+    <div className="max-w-4xl mx-auto bg-background print:bg-white p-6 print:p-1 print-report-container">
       <ReportHeader date={report.date} />
 
-      <div className="space-y-6 print:space-y-4">
+      <div className="space-y-6 print:space-y-1">
         <div className="hidden print:block">
           <table className={`w-full border-2 border-gray-800 ${getTableSizeClass()}`}>
             <thead>
               <tr>
-                <th className="text-left px-4 py-3 font-bold border-r-2 border-gray-800">Service Name</th>
-                <th className="text-right px-4 py-3 font-bold border-r-2 border-gray-800 w-28">Amount</th>
-                <th className="text-left px-4 py-3 font-bold border-r-2 border-gray-800">Expense Name</th>
-                <th className="text-right px-4 py-3 font-bold w-28">Amount</th>
+                <th className="text-left px-2 py-1 font-bold border-r-2 border-gray-800 print:text-xs">Service Name</th>
+                <th className="text-right px-2 py-1 font-bold border-r-2 border-gray-800 w-24 print:text-xs">Amount</th>
+                <th className="text-left px-2 py-1 font-bold border-r-2 border-gray-800 print:text-xs">Expense Name</th>
+                <th className="text-right px-2 py-1 font-bold w-24 print:text-xs">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -48,26 +49,26 @@ export default function ReportDisplay({ report, summary }: ReportDisplayProps) {
                 const expense = report.expenses[index];
                 return (
                   <tr key={index}>
-                    <td className="px-4 py-2.5 border-r">{service?.name || ''}</td>
-                    <td className="px-4 py-2.5 text-right border-r font-medium">{service ? formatCurrency(service.amount) : ''}</td>
-                    <td className="px-4 py-2.5 border-r">{expense?.name || ''}</td>
-                    <td className="px-4 py-2.5 text-right font-medium">{expense ? formatCurrency(expense.amount) : ''}</td>
+                    <td className="px-2 py-0.5 border-r print:text-xs">{service?.name || ''}</td>
+                    <td className="px-2 py-0.5 text-right border-r font-medium print:text-xs">{service ? formatCurrency(service.amount) : ''}</td>
+                    <td className="px-2 py-0.5 border-r print:text-xs">{expense?.name || ''}</td>
+                    <td className="px-2 py-0.5 text-right font-medium print:text-xs">{expense ? formatCurrency(expense.amount) : ''}</td>
                   </tr>
                 );
               })}
               <tr className="bg-gray-300 font-bold">
-                <td className="px-4 py-3 font-bold uppercase tracking-wide">Total Services</td>
-                <td className="px-4 py-3 text-right font-bold">{formatCurrency(summary.totalServices)}</td>
-                <td className="px-4 py-3 font-bold uppercase tracking-wide">Total Expenses</td>
-                <td className="px-4 py-3 text-right font-bold">{formatCurrency(summary.totalExpenses)}</td>
+                <td className="px-2 py-1 font-bold uppercase tracking-wide print:text-xs">Total Srvc</td>
+                <td className="px-2 py-1 text-right font-bold print:text-xs">{formatCurrency(summary.totalServices)}</td>
+                <td className="px-2 py-1 font-bold uppercase tracking-wide print:text-xs">Total Exp</td>
+                <td className="px-2 py-1 text-right font-bold print:text-xs">{formatCurrency(summary.totalExpenses)}</td>
               </tr>
             </tbody>
           </table>
 
-          <div className="mt-4 p-4 bg-gray-200 border-2 border-gray-800 rounded-lg print:mt-3 print:p-3">
+          <div className="mt-2 p-2 bg-gray-200 border-2 border-gray-800 rounded-lg print:mt-1 print:p-1.5">
             <div className="flex justify-between items-center">
-              <span className="text-lg font-bold uppercase tracking-wide">Net Profit:</span>
-              <span className={`text-2xl font-bold ${summary.netProfit >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+              <span className="text-base font-bold uppercase tracking-wide print:text-sm">Net Profit:</span>
+              <span className={`text-xl font-bold print:text-lg ${summary.netProfit >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                 {formatCurrency(summary.netProfit)}
               </span>
             </div>
@@ -187,26 +188,37 @@ export default function ReportDisplay({ report, summary }: ReportDisplayProps) {
           </div>
         </Card>
 
-        <div className="mt-8 print:mt-6 pt-6 print:pt-3 border-t border-gray-300">
-          <div className="flex justify-between">
-            <div className="text-center">
-              <div className="border-t-2 border-gray-800 w-48 mb-2 print:mb-3"></div>
-              <p className="text-sm font-semibold text-foreground print:text-black">Operator Signature</p>
-              <p className="text-xs text-muted-foreground print:text-gray-600 mt-1 operator-signature-name">&nbsp;</p>
-            </div>
-            <div className="text-center">
-              <div className="border-t-2 border-gray-800 w-48 mb-2 print:mb-3"></div>
-              <p className="text-sm font-semibold text-foreground print:text-black">Authorized Signature</p>
-              <p className="text-xs text-muted-foreground print:text-gray-600 mt-1">ADSC</p>
+        <div className="mt-4 print:mt-2 pt-4 print:pt-2 border-t-2 border-gray-300 print:border-gray-800">
+          <div className="space-y-2 print:space-y-0">
+            <div className="flex justify-between gap-2 print:gap-1">
+              {/* Operator Signature */}
+              <div className="flex-1 text-center">
+                <div className="print:h-10 h-12"></div>
+                <div className="border-t-2 border-gray-800 print:border-t-2"></div>
+                <p className="text-xs font-semibold text-foreground print:text-black print:text-xs mt-0.5 print:mt-0.5">Operator Sign</p>
+                <p className="text-xs text-muted-foreground print:text-gray-700 mt-0 print:mt-0 operator-signature-name">&nbsp;</p>
+                <p className="text-xs text-muted-foreground print:text-gray-600 mt-0 print:mt-0 print:text-xs">Name/Date</p>
+              </div>
+
+              {/* Authorized Signature */}
+              <div className="flex-1 text-center">
+                <div className="print:h-10 h-12"></div>
+                <div className="border-t-2 border-gray-800 print:border-t-2"></div>
+                <p className="text-xs font-semibold text-foreground print:text-black print:text-xs mt-0.5 print:mt-0.5">Auth Sign (ADSC)</p>
+                <p className="text-xs text-muted-foreground print:text-gray-700 mt-0 print:mt-0">&nbsp;</p>
+                <p className="text-xs text-muted-foreground print:text-gray-600 mt-0 print:mt-0 print:text-xs">Name/Date</p>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="hidden print:block print-footer border-t border-gray-400 text-center text-gray-600">
-          <p>Generated on {new Date().toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short' })}</p>
-          <p className="mt-1">Aaishree Data Service Center - Daily Business Report</p>
+        <div className="hidden print:block print-footer mt-1 print:mt-1 pt-1 print:pt-0.5 border-t border-gray-400 text-center">
+          <p className="text-xs print:text-xs text-gray-600 print:text-gray-700">{new Date().toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' })}</p>
+          <p className="text-xs text-gray-600 mt-0 print:mt-0 print:text-xs">Aaishree Data Service Center</p>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default React.memo(MemoizedReportDisplay);

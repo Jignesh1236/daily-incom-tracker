@@ -12,12 +12,14 @@ import Login from "@/pages/Login";
 import Admin from "@/pages/Admin";
 import UserManagement from "@/pages/UserManagement";
 import ActivityLogs from "@/pages/ActivityLogs";
+import UserDashboard from "@/pages/UserDashboard";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/dashboard" component={UserDashboard} />
       <Route path="/history" component={History} />
       <Route path="/login" component={Login} />
       <ProtectedRoute path="/admin" component={Admin} />

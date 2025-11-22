@@ -1,10 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Printer, Calendar, Save, History, LogIn, Shield, CreditCard } from "lucide-react";
+import { Printer, Calendar, Save, History, LogIn, Shield, CreditCard, Calculator } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
@@ -22,8 +22,8 @@ import ServiceEntryForm from "@/components/ServiceEntryForm";
 import ExpenseEntryForm from "@/components/ExpenseEntryForm";
 import ReportDisplay from "@/components/ReportDisplay";
 import TemplateManager from "@/components/TemplateManager";
-import KeyboardShortcuts from "@/components/KeyboardShortcuts";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import QuickCalculator from "@/components/QuickCalculator";
 import type { ServiceItem, ExpenseItem, DailyReport, ReportSummary, Report } from "@shared/schema";
 
 const logoUrl = "/attached_assets/download_1762507279905.png";
@@ -36,10 +36,28 @@ export default function Home() {
   const [showReport, setShowReport] = useState(false);
   const [showOperatorDialog, setShowOperatorDialog] = useState(false);
   const [operatorName, setOperatorName] = useState('');
+  const [showCalculator, setShowCalculator] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+
+  // Keyboard shortcut: Ctrl+G or Insert key to open calculator
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'g') {
+        e.preventDefault();
+        setShowCalculator(prev => !prev);
+      }
+      if (e.key === 'Insert') {
+        e.preventDefault();
+        setShowCalculator(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const { data: existingReports } = useQuery<Report[]>({
     queryKey: ['/api/reports/date', date],
@@ -230,11 +248,10 @@ export default function Home() {
             </div>
             <div className="flex gap-3">
               <ThemeToggle />
-              <KeyboardShortcuts />
-              <Link href="/history">
-                <Button variant="outline" className="gap-2" data-testid="button-history">
+              <Link href="/dashboard">
+                <Button variant="outline" className="gap-2">
                   <History className="h-4 w-4" />
-                  History
+                  Dashboard
                 </Button>
               </Link>
               {user ? (
@@ -292,6 +309,7 @@ export default function Home() {
                     onChange={(e) => setDate(e.target.value)}
                     className="h-11"
                     data-testid="input-report-date"
+                    aria-label="Report date selection"
                   />
                 </div>
 
@@ -344,10 +362,17 @@ export default function Home() {
                   min="0"
                   step="0.01"
                   value={onlinePayment}
-                  onChange={(e) => setOnlinePayment(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    const numValue = parseFloat(value);
+                    if (value === '' || !isNaN(numValue) && numValue >= 0) {
+                      setOnlinePayment(value);
+                    }
+                  }}
                   placeholder="0.00"
                   className="h-11"
                   data-testid="input-online-payment"
+                  aria-label="Online payment amount in Indian Rupees"
                 />
               </div>
             </Card>
@@ -415,10 +440,10 @@ export default function Home() {
       )}
 
       <Dialog open={showOperatorDialog} onOpenChange={setShowOperatorDialog}>
-        <DialogContent>
+        <DialogContent aria-describedby="operator-dialog-description">
           <DialogHeader>
             <DialogTitle>Operator Signature</DialogTitle>
-            <DialogDescription>
+            <DialogDescription id="operator-dialog-description">
               Enter the operator name that will appear on the printed report.
             </DialogDescription>
           </DialogHeader>
@@ -448,6 +473,19 @@ export default function Home() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Calculator Button */}
+      <Button
+        onClick={() => setShowCalculator(!showCalculator)}
+        size="icon"
+        className="fixed bottom-6 left-6 h-14 w-14 rounded-full shadow-lg z-40 hover:shadow-xl transition-shadow"
+        title="Quick Calculator"
+      >
+        <Calculator className="h-6 w-6" />
+      </Button>
+
+      {/* Calculator Component */}
+      {showCalculator && <QuickCalculator onClose={() => setShowCalculator(false)} />}
     </div>
   );
 }

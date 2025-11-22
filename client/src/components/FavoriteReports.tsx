@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +8,7 @@ interface FavoriteReportsProps {
   size?: "sm" | "default";
 }
 
-export default function FavoriteReports({ reportId, size = "default" }: FavoriteReportsProps) {
+function FavoriteReports({ reportId, size = "default" }: FavoriteReportsProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const { toast } = useToast();
 
@@ -51,6 +51,8 @@ export default function FavoriteReports({ reportId, size = "default" }: Favorite
     </Button>
   );
 }
+
+export default React.memo(FavoriteReports);
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<string[]>([]);
