@@ -117,11 +117,8 @@ export default function History() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/">
-                <Button variant="ghost" size="icon" data-testid="button-back">
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
+                <img src={logoUrl} alt="ADSC Logo" className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
               </Link>
-              <img src={logoUrl} alt="ADSC Logo" className="h-8 w-auto" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground" data-testid="text-page-title">
                   Reports History

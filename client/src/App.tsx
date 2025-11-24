@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/lib/protected-route";
+import { RoleProtectedRoute } from "@/lib/role-protected-route";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Home from "@/pages/Home";
 import History from "@/pages/History";
@@ -24,9 +25,9 @@ function Router() {
       <Route path="/history" component={History} />
       <Route path="/about" component={About} />
       <Route path="/login" component={Login} />
-      <ProtectedRoute path="/admin" component={Admin} />
-      <ProtectedRoute path="/admin/users" component={UserManagement} />
-      <ProtectedRoute path="/admin/activity" component={ActivityLogs} />
+      <RoleProtectedRoute path="/admin" component={Admin} requiredRole="admin" />
+      <RoleProtectedRoute path="/admin/users" component={UserManagement} requiredRole="admin" />
+      <RoleProtectedRoute path="/admin/activity" component={ActivityLogs} requiredRole="manager" />
       <Route component={NotFound} />
     </Switch>
   );

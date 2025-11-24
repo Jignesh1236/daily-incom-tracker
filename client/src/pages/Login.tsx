@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { Shield, FileText } from "lucide-react";
 
 export default function Login() {
@@ -33,11 +33,13 @@ export default function Login() {
 
             {/* Logo Added Here */}
             <div className="flex justify-center">
-              <img
-                src="https://github.com/Jignesh1236/daily-incom-tracker/blob/main/client/public/adsc-logo-alt.png?raw=true"
-                alt="ADSC Logo"
-                className="h-24 w-24 object-contain rounded-full shadow"
-              />
+              <Link href="/">
+                <img
+                  src="https://github.com/Jignesh1236/daily-incom-tracker/blob/main/client/public/adsc-logo-alt.png?raw=true"
+                  alt="ADSC Logo"
+                  className="h-24 w-24 object-contain rounded-full shadow cursor-pointer hover:opacity-80 transition-opacity"
+                />
+              </Link>
             </div>
 
             <h1 className="text-4xl font-bold text-gray-900">

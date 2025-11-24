@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "wouter";
 
 interface ReportHeaderProps {
   date: string;
@@ -11,7 +12,9 @@ const ReportHeader = ({ date }: ReportHeaderProps) => {
     <div className="mb-6 border-b-2 border-border print:border-b print:border-gray-800 pb-4 print:pb-1 print:mb-0.5">
       <div className="flex items-start justify-between gap-6 print:gap-2">
         <div className="flex items-center gap-4">
-          <img src={logoUrl} alt="ADSC Logo" className="h-14 w-auto print:h-8" data-testid="img-logo" />
+          <Link href="/">
+            <img src={logoUrl} alt="ADSC Logo" className="h-14 w-auto print:h-8 cursor-pointer hover:opacity-80 transition-opacity print:cursor-auto print:hover:opacity-100" data-testid="img-logo" />
+          </Link>
         </div>
 
         <div className="flex-1 text-center">

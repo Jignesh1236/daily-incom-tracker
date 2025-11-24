@@ -635,7 +635,9 @@ export default function Admin() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src="/adsc-logo.png" alt="ADSC Logo" className="h-12 w-auto" />
+              <Link href="/">
+                <img src="/adsc-logo.png" alt="ADSC Logo" className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
+              </Link>
               <div>
                 <h1 className="text-2xl font-bold">Admin Dashboard</h1>
                 <p className="text-sm text-muted-foreground">

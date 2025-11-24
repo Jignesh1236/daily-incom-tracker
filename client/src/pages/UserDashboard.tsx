@@ -121,7 +121,9 @@ export default function UserDashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src={logoUrl} alt="ADSC Logo" className="h-8 w-auto" />
+              <Link href="/">
+                <img src={logoUrl} alt="ADSC Logo" className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
+              </Link>
               <div>
                 <h1 className="text-2xl font-bold">Daily Dashboard</h1>
                 <p className="text-sm text-muted-foreground">View your business performance</p>
