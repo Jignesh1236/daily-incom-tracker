@@ -18,7 +18,6 @@ import EnhancedAnalytics from "@/components/EnhancedAnalytics";
 import BackupRestore from "@/components/BackupRestore";
 import ReportComparison from "@/components/ReportComparison";
 import GoalsTracker from "@/components/GoalsTracker";
-import ExpenseCategories from "@/components/ExpenseCategories";
 import FavoriteReports, { useFavorites } from "@/components/FavoriteReports";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
@@ -941,10 +940,6 @@ export default function Admin() {
         <div className="grid lg:grid-cols-2 gap-6 mb-6">
           <GoalsTracker reports={allReports} />
           <ReportComparison reports={allReports} />
-        </div>
-
-        <div className="mb-6">
-          <ExpenseCategories reports={allReports} />
         </div>
 
         {/* Filtered Reports List */}

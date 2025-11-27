@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Printer, Calendar, Save, History, LogIn, Shield, CreditCard, Calculator, Info } from "lucide-react";
+import { Printer, Calendar, Save, History, LogIn, LogOut, Shield, CreditCard, Calculator, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
@@ -40,8 +40,16 @@ export default function Home() {
   const [showCalculator, setShowCalculator] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, logoutMutation } = useAuth();
   const [, setLocation] = useLocation();
+
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        setLocation('/login');
+      },
+    });
+  };
 
   // Keyboard shortcut: Ctrl+G or Insert key to open calculator
   useEffect(() => {
@@ -265,12 +273,24 @@ export default function Home() {
                 </Button>
               </Link>
               {user ? (
-                <Link href="/admin">
-                  <Button variant="outline" className="gap-2">
-                    <Shield className="h-4 w-4" />
-                    Admin
+                user.role === "admin" ? (
+                  <Link href="/admin">
+                    <Button variant="outline" className="gap-2">
+                      <Shield className="h-4 w-4" />
+                      Admin
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="gap-2" 
+                    onClick={handleLogout}
+                    disabled={logoutMutation.isPending}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {logoutMutation.isPending ? 'Logging out...' : 'Logout'}
                   </Button>
-                </Link>
+                )
               ) : (
                 <Link href="/login">
                   <Button variant="outline" className="gap-2">

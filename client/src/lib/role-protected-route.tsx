@@ -1,6 +1,8 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import type { Permissions } from "@shared/schema";
 
 export function RoleProtectedRoute({
   path,
@@ -12,8 +14,21 @@ export function RoleProtectedRoute({
   requiredRole: "admin" | "manager" | "employee";
 }) {
   const { user, isLoading } = useAuth();
+  
+  const { data: permissions, isLoading: permissionsLoading } = useQuery<Permissions>({
+    queryKey: ['/api/roles', user?.role, 'permissions'],
+    queryFn: async () => {
+      if (!user?.role) return null;
+      const res = await fetch(`/api/roles/${user.role}/permissions`, {
+        credentials: 'include',
+      });
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!user?.role,
+  });
 
-  if (isLoading) {
+  if (isLoading || permissionsLoading) {
     return (
       <Route path={path}>
         <div className="flex items-center justify-center min-h-screen">
@@ -31,13 +46,12 @@ export function RoleProtectedRoute({
     );
   }
 
-  // Check if user has required role
-  const hasAccess = checkRoleAccess(user.role, requiredRole);
+  const hasAccess = checkRoleAccess(user.role, requiredRole, permissions);
   
   if (!hasAccess) {
     return (
       <Route path={path}>
-        <Redirect to="/dashboard" />
+        <Redirect to="/" />
       </Route>
     );
   }
@@ -45,15 +59,31 @@ export function RoleProtectedRoute({
   return <Route path={path} component={Component} />;
 }
 
-function checkRoleAccess(userRole: string, requiredRole: string): boolean {
+function checkRoleAccess(userRole: string, requiredRole: string, permissions?: Permissions | null): boolean {
   const roleHierarchy: Record<string, number> = {
     admin: 3,
     manager: 2,
     employee: 1,
   };
 
-  const userLevel = roleHierarchy[userRole] || 0;
-  const requiredLevel = roleHierarchy[requiredRole] || 0;
+  if (roleHierarchy[userRole] !== undefined) {
+    const userLevel = roleHierarchy[userRole];
+    const requiredLevel = roleHierarchy[requiredRole];
+    return userLevel >= requiredLevel;
+  }
 
-  return userLevel >= requiredLevel;
+  if (permissions) {
+    const requiredPermissions: Record<string, keyof Permissions> = {
+      admin: 'canManageUsers',
+      manager: 'canAccessAdmin',
+      employee: 'canViewReports',
+    };
+    
+    const requiredPermission = requiredPermissions[requiredRole];
+    if (requiredPermission && permissions[requiredPermission]) {
+      return true;
+    }
+  }
+
+  return false;
 }

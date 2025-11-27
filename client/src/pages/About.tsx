@@ -100,6 +100,18 @@ export default function About() {
       title: "Admin Dashboard",
       description: "Protected admin area for managing reports, users, and viewing activity logs",
       color: "text-violet-600"
+    },
+    {
+      icon: Lock,
+      title: "Mandatory Login",
+      description: "Secure authentication required for all users to access reports and features",
+      color: "text-red-700"
+    },
+    {
+      icon: Users,
+      title: "Custom Roles",
+      description: "Admins can create custom roles with granular permissions for flexible access control",
+      color: "text-blue-700"
     }
   ];
 
@@ -162,13 +174,13 @@ export default function About() {
               Aaishree Data Service Center is a full-stack TypeScript application designed to streamline
               the process of generating, managing, and analyzing daily business reports. Built with modern
               web technologies, it provides a powerful yet intuitive interface for businesses to track
-              their services, expenses, and profitability.
+              their services, expenses, and profitability. <strong>All users must login securely to access the application.</strong>
             </p>
             <p className="leading-relaxed">
-              The application allows users to input services and expenses, create formatted reports, and
+              The application allows authenticated users to input services and expenses, create formatted reports, and
               offers advanced features like printing, saving, template management, and comprehensive analytics.
-              With built-in admin authentication, role-based access control, and activity logging, it ensures
-              secure and efficient business operations.
+              With built-in admin authentication, role-based access control with custom roles, permissions-based
+              authorization, and detailed activity logging, it ensures secure and efficient business operations.
             </p>
             <p className="leading-relaxed">
               Whether you're tracking daily transactions, analyzing monthly trends, or comparing performance
@@ -225,19 +237,19 @@ export default function About() {
                 <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 mt-1">•</span>
-                    <span>Role-based access control (Admin, Manager, Employee)</span>
+                    <span>System roles: Admin, Manager, Employee with predefined permissions</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 mt-1">•</span>
-                    <span>Secure password management with hashing</span>
+                    <span>Custom roles with granular permissions for flexible access control</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 mt-1">•</span>
-                    <span>Activity logging for audit trails</span>
+                    <span>Secure password management with encryption</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-blue-600 mt-1">•</span>
-                    <span>User activation and deactivation controls</span>
+                    <span>Comprehensive activity logging for complete audit trails</span>
                   </li>
                 </ul>
               </div>
@@ -300,19 +312,19 @@ export default function About() {
                 <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                   <li className="flex items-start gap-2">
                     <span className="text-red-600 mt-1">•</span>
-                    <span>Passport.js authentication with sessions</span>
+                    <span>Mandatory login for all users - zero anonymous access</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-red-600 mt-1">•</span>
-                    <span>Helmet.js for security headers</span>
+                    <span>Passport.js authentication with secure sessions</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-red-600 mt-1">•</span>
-                    <span>Protected admin routes and endpoints</span>
+                    <span>Permissions-based authorization with role verification</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-red-600 mt-1">•</span>
-                    <span>Data validation with Zod schemas</span>
+                    <span>Helmet.js security headers and data validation with Zod</span>
                   </li>
                 </ul>
               </div>

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Eye, Search, Filter, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, Redirect } from "wouter";
 import { Input } from "@/components/ui/input";
 import { useState, useMemo } from "react";
 import {
@@ -13,20 +13,27 @@ import {
 } from "@/components/ui/dialog";
 import ReportDisplay from "@/components/ReportDisplay";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/hooks/use-auth";
 import type { Report } from "@shared/schema";
 
 const logoUrl = "/adsc-logo.png";
 
 export default function UserDashboard() {
+  const { user } = useAuth();
+  
+  if (user && user.role === "manager") {
+    return <Redirect to="/admin" />;
+  }
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [profitFilter, setProfitFilter] = useState<"all" | "profit" | "loss">("all");
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
 
-  const { data: reports = [], isLoading } = useQuery<Report[]>({
+  const { data: reports = [], isLoading, error } = useQuery<Report[]>({
     queryKey: ['/api/reports'],
+    enabled: !!user, // Only fetch if user is logged in
   });
 
   const formatCurrency = (amount: string | number) => {
@@ -313,7 +320,14 @@ export default function UserDashboard() {
 
         {/* Reports Grid */}
         <div className="space-y-4">
-          {isLoading ? (
+          {error ? (
+            <Card className="p-12 text-center border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
+              <p className="text-red-600 dark:text-red-400 mb-2 font-semibold">Error loading reports</p>
+              <p className="text-sm text-red-600 dark:text-red-400">
+                {error instanceof Error ? error.message : 'Failed to load reports. Please try again.'}
+              </p>
+            </Card>
+          ) : isLoading ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Loading reports...</p>
             </div>
@@ -393,6 +407,8 @@ export default function UserDashboard() {
                 totalServices: parseFloat(selectedReport.totalServices.toString()),
                 totalExpenses: parseFloat(selectedReport.totalExpenses.toString()),
                 netProfit: parseFloat(selectedReport.netProfit.toString()),
+                onlinePayment: parseFloat((selectedReport.onlinePayment || '0').toString()),
+                cashPayment: parseFloat((selectedReport.cashPayment || '0').toString()),
               }}
             />
           )}

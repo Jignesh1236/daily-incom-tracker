@@ -5,7 +5,7 @@ import { Trash2, Eye, ArrowLeft, LogIn, Shield } from "lucide-react";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import type { Report, ServiceItem, ExpenseItem } from "@shared/schema";
+import type { Report, ServiceItem, ExpenseItem, Permissions } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import {
   AlertDialog,
@@ -37,8 +37,22 @@ export default function History() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const favorites = useFavorites();
 
-  const { data: reports, isLoading } = useQuery<Report[]>({
+  const { data: reports, isLoading, error } = useQuery<Report[]>({
     queryKey: ['/api/reports'],
+    enabled: !!user,
+  });
+
+  const { data: permissions } = useQuery<Permissions>({
+    queryKey: ['/api/roles', user?.role, 'permissions'],
+    queryFn: async () => {
+      if (!user?.role) return null;
+      const res = await fetch(`/api/roles/${user.role}/permissions`, {
+        credentials: 'include',
+      });
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: !!user?.role,
   });
 
   const deleteReportMutation = useMutation({
@@ -151,7 +165,14 @@ export default function History() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 no-print">
-        {isLoading ? (
+        {error ? (
+          <Card className="p-12 text-center border-red-200 bg-red-50 dark:bg-red-950 dark:border-red-800">
+            <p className="text-red-600 dark:text-red-400 mb-2 font-semibold">Error loading reports</p>
+            <p className="text-sm text-red-600 dark:text-red-400">
+              {error instanceof Error ? error.message : 'Failed to load reports. Please try again.'}
+            </p>
+          </Card>
+        ) : isLoading ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">Loading reports...</p>
           </div>
@@ -220,14 +241,14 @@ export default function History() {
                       <Eye className="h-4 w-4" />
                     </Button>
 
-                    {user ? (
+                    {user && permissions?.canDeleteReports ? (
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant="ghost"
                             size="icon"
                             data-testid={`button-delete-${index}`}
-                            title="Delete Report (Admin Only)"
+                            title="Delete Report"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -250,7 +271,7 @@ export default function History() {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-                    ) : (
+                    ) : !user ? (
                       <Link href="/login">
                         <Button
                           variant="ghost"
@@ -261,7 +282,7 @@ export default function History() {
                           <Shield className="h-4 w-4" />
                         </Button>
                       </Link>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </Card>

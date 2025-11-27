@@ -20,12 +20,12 @@ import NotFound from "@/pages/not-found";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/dashboard" component={UserDashboard} />
-      <Route path="/history" component={History} />
-      <Route path="/about" component={About} />
       <Route path="/login" component={Login} />
-      <RoleProtectedRoute path="/admin" component={Admin} requiredRole="admin" />
+      <ProtectedRoute path="/" component={Home} />
+      <ProtectedRoute path="/dashboard" component={UserDashboard} />
+      <ProtectedRoute path="/history" component={History} />
+      <ProtectedRoute path="/about" component={About} />
+      <RoleProtectedRoute path="/admin" component={Admin} requiredRole="manager" />
       <RoleProtectedRoute path="/admin/users" component={UserManagement} requiredRole="admin" />
       <RoleProtectedRoute path="/admin/activity" component={ActivityLogs} requiredRole="manager" />
       <Route component={NotFound} />
