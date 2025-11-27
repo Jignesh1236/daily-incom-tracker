@@ -359,20 +359,65 @@ export function requireAuth(req: any, res: any, next: any) {
   next();
 }
 
-export function requireRole(...roles: Array<"admin" | "manager" | "employee">) {
-  return (req: any, res: any, next: any) => {
+export function requireRole(...roles: string[]) {
+  return async (req: any, res: any, next: any) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        error: "Forbidden", 
-        message: "You don't have permission to access this resource" 
-      });
+    const userRole = req.user.role;
+    
+    const roleHierarchy: Record<string, number> = {
+      admin: 3,
+      manager: 2,
+      employee: 1,
+    };
+    
+    const userLevel = roleHierarchy[userRole] || 0;
+    
+    const hasAccess = roles.some(requiredRole => {
+      const requiredLevel = roleHierarchy[requiredRole] || 0;
+      if (roleHierarchy[userRole] !== undefined) {
+        return userLevel >= requiredLevel;
+      }
+      return userRole === requiredRole;
+    });
+    
+    if (hasAccess) {
+      return next();
     }
     
-    next();
+    if (!roleHierarchy[userRole]) {
+      try {
+        const db = await getDb();
+        if (db) {
+          const rolesCollection = db.collection('roles');
+          const customRole = await rolesCollection.findOne({ name: userRole });
+          
+          if (customRole && customRole.permissions) {
+            const requiredPermissions: Record<string, string> = {
+              admin: 'canManageUsers',
+              manager: 'canAccessAdmin',
+              employee: 'canViewReports',
+            };
+            
+            for (const requiredRole of roles) {
+              const permissionKey = requiredPermissions[requiredRole];
+              if (permissionKey && customRole.permissions[permissionKey]) {
+                return next();
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error checking custom role permissions:', error);
+      }
+    }
+    
+    return res.status(403).json({ 
+      error: "Forbidden", 
+      message: "You don't have permission to access this resource" 
+    });
   };
 }
 
